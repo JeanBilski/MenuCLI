@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox", "Sandbox\Sandbox.csproj", "{66D48278-8BC4-40FF-A700-4526902745B3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MenuCLI", "MenuCLI\MenuCLI.csproj", "{4FE151C3-5D10-4FFA-9D18-06AEF0155B9A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{66D48278-8BC4-40FF-A700-4526902745B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66D48278-8BC4-40FF-A700-4526902745B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66D48278-8BC4-40FF-A700-4526902745B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66D48278-8BC4-40FF-A700-4526902745B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FE151C3-5D10-4FFA-9D18-06AEF0155B9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FE151C3-5D10-4FFA-9D18-06AEF0155B9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FE151C3-5D10-4FFA-9D18-06AEF0155B9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FE151C3-5D10-4FFA-9D18-06AEF0155B9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C7F4F61D-5A1F-494A-916B-644FE610DE52}
+	EndGlobalSection
+EndGlobal
