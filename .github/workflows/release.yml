@@ -20,4 +20,4 @@ jobs:
     - name: Pack nugets
       run: dotnet pack ${{ github.workspace }}/MenuCLI/MenuCLI.csproj -c Release --no-build --output .
     - name: Push to NuGet
-      run: dotnet nuget push "*.nupkg" --api-key ${{secrets.nuget_api_key}} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push "*.nupkg" --api-key ${{secrets.NUGET_API_SECRET}} --source https://api.nuget.org/v3/index.json
