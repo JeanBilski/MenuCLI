@@ -1,4 +1,6 @@
-﻿namespace MenuCLILib
+﻿using System.Reflection;
+
+namespace MenuCLI
 {
     public class MenuChoice
     {
@@ -8,20 +10,18 @@
 
         private Action _callback;
 
-        private bool _isAsync;
+        private MethodInfo _method;
 
         public MenuChoice(string displayString, Func<Task> asyncCallback)
         {
             _displayString = displayString;
             _asyncCallback = asyncCallback;
-            _isAsync = true;
         }
 
         public MenuChoice(string displayString, Action action)
         {
             _displayString = displayString;
             _callback = action;
-            _isAsync = false;
         }
 
         public void Display(int index)
@@ -35,7 +35,7 @@
             Console.Clear();
             Console.WriteLine(_displayString);
             Console.WriteLine();
-            if (_isAsync)
+            if (_asyncCallback != null)
             {
                 await _asyncCallback.Invoke();
             } 

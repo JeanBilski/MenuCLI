@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MenuCLILib
+namespace MenuCLI
 {
     public class Screen
     {
@@ -29,7 +29,7 @@ namespace MenuCLILib
         {
             _title = title;
             _description = description;
-            _ended = false;
+            _exitChoice = new MenuChoice("Exit", () => { });
         }
 
         public void AddMenuChoice(string description, Func<Task> action)
