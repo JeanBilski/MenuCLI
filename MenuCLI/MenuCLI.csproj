@@ -5,7 +5,8 @@
     <Version>0.2.0-alpha</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Description>A basic library for App Console Menuing</Description>
+    <Description>A library for efficient App Console Interface</Description>
+    <RepositoryUrl>https://github.com/ShizuoLamperouge/MenuCLI</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
