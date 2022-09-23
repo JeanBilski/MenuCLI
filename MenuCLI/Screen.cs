@@ -9,9 +9,21 @@ namespace MenuCLILib
     public class Screen
     {
         private string _title;
+
         private string _description;
+
         private List<MenuChoice> _menuChoices = new List<MenuChoice>();
+
+        private MenuChoice _exitChoice;
+
         private bool _ended;
+
+        public Screen()
+        {
+            _title = "title";
+            _description = "description";
+            _exitChoice = new MenuChoice("Exit", () => { });
+        }
 
         public Screen(string title, string description)
         {
@@ -20,17 +32,22 @@ namespace MenuCLILib
             _ended = false;
         }
 
+        public void AddMenuChoice(string description, Func<Task> action)
+        {
+            _menuChoices.Add(new MenuChoice(description, action));
+        }
+
         public void AddMenuChoice(string description, Action action)
         {
             _menuChoices.Add(new MenuChoice(description, action));
         }
 
-        public void Run()
+        public async Task Run()
         {
             while (!_ended)
             {
                 Display();
-                EvaluateAnswer();
+                await EvaluateAnswer();
             }
             _ended = false;
         }
@@ -66,21 +83,23 @@ namespace MenuCLILib
             {
                 _menuChoices[i].Display(i);
             }
+            _exitChoice.Display(-1);
         }
         #endregion
 
         #region Control
-        private void EvaluateAnswer()
+        private async Task EvaluateAnswer()
         {
             var choice = Console.ReadLine();
             if (IsEndCondition(choice))
             {
                 _ended = true;
+
                 return;
             }
             else if (IsACorrectInput(choice, out var index)) 
             {
-                _menuChoices[index - 1].Run();
+                await _menuChoices[index - 1].Run();
             }
         }
 
@@ -98,6 +117,7 @@ namespace MenuCLILib
                     return true;
                 }
             }
+
             return false;
         }
         #endregion
