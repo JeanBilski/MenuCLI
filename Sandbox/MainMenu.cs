@@ -23,7 +23,7 @@ namespace Sandbox
             Console.WriteLine($"First Choice Action with a sync call { _injectionExemple.ExempleOfASyncCall() }");
         }
 
-        [Choice("Sub Menu", typeof(SubMenu))]
+        [Choice("Sub Menu", SubMenu = typeof(SubMenu))]
         public async Task Choice2()
         {
             Console.WriteLine("Second Choice Action");
