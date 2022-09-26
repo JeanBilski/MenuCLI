@@ -10,9 +10,7 @@ namespace MenuCLI
     {
         public string Title { get; set; }
 
-        public string Description{ get; set; }
-
-        public bool IsMainMenu { get; set; }
+        public string? Description{ get; set; }
 
         public MenuAttribute(string title)
         {

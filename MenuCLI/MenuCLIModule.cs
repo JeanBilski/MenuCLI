@@ -12,28 +12,20 @@ namespace MenuCLI
 {
     public static class MenuCLIModule
     {
-        private static MenuSqueleton _mainScreenSqueleton;
+        private static MenuSqueleton? _entrypointSqueleton;
 
-        public static IServiceCollection AddMenuCLI(this IServiceCollection services, params Assembly[] assemblies)
+        public static IServiceCollection AddMenuCLI(this IServiceCollection services, Type entrypoint)
         {
-            var menuClasses = assemblies
-                .SelectMany(x => x.GetTypes())
-                .Where(x => x.IsClass)
-                .Where(x => x.GetCustomAttributes(typeof(MenuAttribute), false).FirstOrDefault() != null)
-                .ToArray();
-
-            var menusDictionary = menuClasses.ToLookup(c => c.FullName, c => 
-                {
-                    var menuAttribute = c.GetCustomAttribute<MenuAttribute>();
-                    return (new Screen(menuAttribute.Title, menuAttribute.Description), menuAttribute.IsMainMenu);
-                });
-
-            var mainMenu = menuClasses.Where(c => c.GetCustomAttribute<MenuAttribute>().IsMainMenu).FirstOrDefault();
-
-            if (mainMenu != null)
+            if (entrypoint == null)
             {
-                _mainScreenSqueleton = ScanAScreen(mainMenu, services);
+                throw new ArgumentNullException(nameof(entrypoint));
             }
+            if (!entrypoint.IsClass)
+            {
+                throw new ArgumentException($"The entrypoint {entrypoint.Name} must be a class");
+            }
+
+            _entrypointSqueleton = PrepareTheMenuSqueleton(entrypoint, services);
 
             return services;
         }
@@ -42,9 +34,39 @@ namespace MenuCLI
         {
             using IServiceScope serviceScope = serviceProvider.CreateScope();
             IServiceProvider provider = serviceScope.ServiceProvider;
-            var screen = GenerateScreen(_mainScreenSqueleton, provider);
+            if (_entrypointSqueleton == null)
+            {
+                throw new ArgumentNullException("The generation of the menu squeleton went wrong");
+            }
 
+            var screen = GenerateScreen(_entrypointSqueleton, provider);
             await screen.Run();
+        }
+
+        private static MenuSqueleton PrepareTheMenuSqueleton(Type menu, IServiceCollection services)
+        {
+            services.AddTransient(menu);
+
+            var menuAttributes = menu.GetCustomAttribute<MenuAttribute>();
+            if (menuAttributes == null)
+            {
+                throw new ArgumentException($"The entrypoint must have the MenuAttribute");
+            }
+
+            var methods = menu.GetMethods().Where(m => m.GetCustomAttribute(typeof(ChoiceAttribute), false) != null).ToArray();
+            var choicesSqueleton = new List<ChoiceSqueleton>();
+            foreach (var method in methods)
+            {
+                var methodAttributes = method.GetCustomAttribute<ChoiceAttribute>();
+                if (methodAttributes == null)
+                {
+                    throw new ArgumentException($"The method {method.Name} in the class {menu.Name} miss the ChoiceAttribute");
+                }
+                var subMenu = methodAttributes.SubMenu != null ? PrepareTheMenuSqueleton(methodAttributes.SubMenu, services) : null;
+                choicesSqueleton.Add(new ChoiceSqueleton(methodAttributes.ChoiceDescription, method, subMenu));
+            }
+
+            return new MenuSqueleton(menu, menuAttributes.Title, menuAttributes.Description, choicesSqueleton);
         }
 
         private static Screen GenerateScreen(MenuSqueleton menuSqueleton, IServiceProvider provider)
@@ -56,46 +78,39 @@ namespace MenuCLI
                 if (method.SubMenu != null)
                 {
                     var subScreen = GenerateScreen(method.SubMenu, provider);
-                    screen.AddMenuChoice(method.Description, async () => { await subScreen.Run(); });
+                    screen.AddMenuChoice(method.Description, async () => 
+                    {
+                        await ExecuteCallback(method.MethodInfo, menu);
+                        await subScreen.Run(); 
+                    });
                 }
                 else
                 {
-                    screen.AddMenuChoice(method.Description, async () => 
-                        {   if (method.MethodInfo.GetCustomAttribute<AsyncStateMachineAttribute>() != null)
-                            {
-                                await (Task)method.MethodInfo.Invoke(menu, null);
-                            }
-                            else
-                            {
-                                method.MethodInfo.Invoke(menu, null);
-                            }
-                        });
+                    screen.AddMenuChoice(method.Description, async () => await ExecuteCallback(method.MethodInfo, menu));
                 }
             }
 
             return screen;
         }
 
-        private static MenuSqueleton ScanAScreen(Type menu, IServiceCollection services)
+        private static async Task ExecuteCallback(MethodInfo method, object? menu)
         {
-            services.AddTransient(menu);
-
-            var mainMenuAttributes = menu.GetCustomAttribute<MenuAttribute>();
-
-            var methods = menu.GetMethods().Where(m => m.GetCustomAttribute(typeof(ChoiceAttribute), false) != null).ToArray();
-            var choicesSqueleton = new List<ChoiceSqueleton>();
-            foreach (var method in methods)
+            if (method.GetCustomAttribute<AsyncStateMachineAttribute>() != null)
             {
-                var methodAttributes = method.GetCustomAttribute<ChoiceAttribute>();
-                var subMenu = methodAttributes.SubMenu != null ? ScanAScreen(methodAttributes.SubMenu, services) : null;
-                choicesSqueleton.Add(new ChoiceSqueleton(methodAttributes.ChoiceDescription, method, subMenu));
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                await (Task)method.Invoke(menu, null);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
             }
-
-            return new MenuSqueleton(menu, mainMenuAttributes.Title, mainMenuAttributes.Description, choicesSqueleton);
+            else
+            {
+                method.Invoke(menu, null);
+            }
         }
 
-        record MenuSqueleton(Type Menu, string Title, string Description, IEnumerable<ChoiceSqueleton> ChoiceSqueletons);
+        record MenuSqueleton(Type Menu, string Title, string? Description, IEnumerable<ChoiceSqueleton> ChoiceSqueletons);
 
-        record ChoiceSqueleton(string Description, MethodInfo MethodInfo, MenuSqueleton SubMenu = null);
+        record ChoiceSqueleton(string Description, MethodInfo MethodInfo, MenuSqueleton? SubMenu = null);
     }
 }

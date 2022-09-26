@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Sandbox
 {
-    [Menu("Main Menu", IsMainMenu = true)]
+    [Menu("Main Menu", Description = "This is a wonderfull description")]
     internal class MainMenu
     {
-
         [Choice("Choice 1")]
         public void Choice1()
         {
             Console.WriteLine("First Choice Action");
+            throw new NotImplementedException();
         }
 
         [Choice("Sub Menu", typeof(SubMenu))]

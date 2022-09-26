@@ -10,7 +10,7 @@ namespace MenuCLI
     {
         private string _title;
 
-        private string _description;
+        private string? _description;
 
         private List<MenuChoice> _menuChoices = new List<MenuChoice>();
 
@@ -25,7 +25,7 @@ namespace MenuCLI
             _exitChoice = new MenuChoice("Exit", () => { });
         }
 
-        public Screen(string title, string description)
+        public Screen(string title, string? description)
         {
             _title = title;
             _description = description;
@@ -103,12 +103,12 @@ namespace MenuCLI
             }
         }
 
-        private bool IsEndCondition(string choice)
+        private bool IsEndCondition(string? choice)
         {
             return choice == "0";
         }
 
-        private bool IsACorrectInput(string choice, out int value)
+        private bool IsACorrectInput(string? choice, out int value)
         {
             if (Int32.TryParse(choice, out value))
             {

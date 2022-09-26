@@ -10,9 +10,9 @@ namespace MenuCLI
     {
         public string ChoiceDescription { get; set; }
 
-        public Type SubMenu{ get; set; }
+        public Type? SubMenu{ get; set; }
 
-        public ChoiceAttribute(string choiceDescription, Type subMenu = default)
+        public ChoiceAttribute(string choiceDescription, Type? subMenu = default)
         {
             ChoiceDescription = choiceDescription;  
             SubMenu = subMenu;

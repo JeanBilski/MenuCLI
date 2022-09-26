@@ -6,11 +6,9 @@ namespace MenuCLI
     {
         private string _displayString;
 
-        private Func<Task> _asyncCallback;
+        private Func<Task>? _asyncCallback;
 
-        private Action _callback;
-
-        private MethodInfo _method;
+        private Action? _callback;
 
         public MenuChoice(string displayString, Func<Task> asyncCallback)
         {
@@ -35,14 +33,20 @@ namespace MenuCLI
             Console.Clear();
             Console.WriteLine(_displayString);
             Console.WriteLine();
+
             if (_asyncCallback != null)
             {
                 await _asyncCallback.Invoke();
             } 
-            else
+            else if (_callback != null)
             {
                 _callback();
             }
+            else
+            {
+                throw new ArgumentNullException($"The choice need to have a callback to be executed");
+            }
+
             Console.WriteLine();
             Console.WriteLine("Press a key to continue...");
             Console.ReadKey();
