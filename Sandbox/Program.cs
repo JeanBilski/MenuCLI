@@ -9,6 +9,8 @@ using IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((_, services) =>
     {
         services.AddMenuCLI(typeof(MainMenu));
+
+        services.AddTransient<DependancyInjectionExemple>();
     })
     .Build();
 

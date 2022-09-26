@@ -2,7 +2,7 @@
 
 namespace MenuCLI
 {
-    public class MenuChoice
+    internal class MenuChoice
     {
         private string _displayString;
 
@@ -10,25 +10,25 @@ namespace MenuCLI
 
         private Action? _callback;
 
-        public MenuChoice(string displayString, Func<Task> asyncCallback)
+        internal MenuChoice(string displayString, Func<Task> asyncCallback)
         {
             _displayString = displayString;
             _asyncCallback = asyncCallback;
         }
 
-        public MenuChoice(string displayString, Action action)
+        internal MenuChoice(string displayString, Action action)
         {
             _displayString = displayString;
             _callback = action;
         }
 
-        public void Display(int index)
+        internal void Display(int index)
         {
             Console.WriteLine($"    {index + 1}. {_displayString}");
             Console.WriteLine();
         }
 
-        public async Task Run()
+        internal async Task Run()
         {
             Console.Clear();
             Console.WriteLine(_displayString);

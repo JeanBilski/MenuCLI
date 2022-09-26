@@ -10,6 +10,13 @@ namespace Sandbox
     [Menu("Sub Menu")]
     internal class SubMenu
     {
+        private readonly DependancyInjectionExemple _injectionExemple;
+
+        public SubMenu(DependancyInjectionExemple injectionExemple)
+        {
+            _injectionExemple = injectionExemple;
+        }
+
         [Choice("Sub Choice 1")]
         public void Choice1()
         {
@@ -19,8 +26,7 @@ namespace Sandbox
         [Choice("Async Choice 2")]
         public async Task Choice2()
         {
-            await Task.Delay(1000);
-            Console.WriteLine("Sub Menu First Choice");
+            Console.WriteLine($"Sub Menu Choice with an async call {await _injectionExemple.ExempleOfAnAsyncCall()}");
         }
     }
 }

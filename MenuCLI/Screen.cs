@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MenuCLI
 {
-    public class Screen
+    internal class Screen
     {
         private string _title;
 
