@@ -78,11 +78,14 @@ namespace MenuCLI
                 if (method.SubMenu != null)
                 {
                     var subScreen = GenerateScreen(method.SubMenu, provider);
-                    screen.AddMenuChoice(method.Description, async () => 
-                    {
-                        await ExecuteCallback(method.MethodInfo, menu);
-                        await subScreen.Run(); 
-                    });
+                    screen.AddMenuChoice(
+                        method.Description, 
+                        async () => 
+                        {
+                            await ExecuteCallback(method.MethodInfo, menu);
+                            await subScreen.Run(); 
+                        }, 
+                        false);
                 }
                 else
                 {

@@ -22,24 +22,24 @@ namespace MenuCLI
         {
             _title = "title";
             _description = "description";
-            _exitChoice = new MenuChoice("Exit", () => { });
+            _exitChoice = new MenuChoice("Exit", () => { }, false);
         }
 
         public Screen(string title, string? description)
         {
             _title = title;
             _description = description;
-            _exitChoice = new MenuChoice("Exit", () => { });
+            _exitChoice = new MenuChoice("Exit", () => { }, false);
         }
 
-        public void AddMenuChoice(string description, Func<Task> action)
+        public void AddMenuChoice(string description, Func<Task> action, bool waitForUserInput = true)
         {
-            _menuChoices.Add(new MenuChoice(description, action));
+            _menuChoices.Add(new MenuChoice(description, action, waitForUserInput));
         }
 
-        public void AddMenuChoice(string description, Action action)
+        public void AddMenuChoice(string description, Action action, bool waitForUserInput = true)
         {
-            _menuChoices.Add(new MenuChoice(description, action));
+            _menuChoices.Add(new MenuChoice(description, action, waitForUserInput));
         }
 
         public async Task Run()

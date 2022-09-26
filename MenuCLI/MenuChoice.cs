@@ -10,16 +10,20 @@ namespace MenuCLI
 
         private Action? _callback;
 
-        internal MenuChoice(string displayString, Func<Task> asyncCallback)
+        private bool _waitForUserInput;
+
+        internal MenuChoice(string displayString, Func<Task> asyncCallback, bool waitForUserInput= true)
         {
             _displayString = displayString;
             _asyncCallback = asyncCallback;
+            _waitForUserInput = waitForUserInput;
         }
 
-        internal MenuChoice(string displayString, Action action)
+        internal MenuChoice(string displayString, Action action, bool waitForUserInput = true)
         {
             _displayString = displayString;
             _callback = action;
+            _waitForUserInput= waitForUserInput;
         }
 
         internal void Display(int index)
@@ -47,9 +51,12 @@ namespace MenuCLI
                 throw new ArgumentNullException($"The choice need to have a callback to be executed");
             }
 
-            Console.WriteLine();
-            Console.WriteLine("Press a key to continue...");
-            Console.ReadKey();
+            if (_waitForUserInput)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Press a key to continue...");
+                Console.ReadKey();
+            }
         }
     }
 }
