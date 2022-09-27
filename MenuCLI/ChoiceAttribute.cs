@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MenuCLI
 {
+    [AttributeUsage(AttributeTargets.Method)]
     public class ChoiceAttribute : Attribute
     {
         public string ChoiceDescription { get; set; }

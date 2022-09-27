@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MenuCLI
 {
+    [AttributeUsage(AttributeTargets.Class)]
     public class MenuAttribute : Attribute
     {
         public string Title { get; set; }
