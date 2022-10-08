@@ -38,6 +38,8 @@ await host.Services.StartMenu();
 ```
 - Enjoy !
 
+![basic app console](./.resources/basic-menu.jpg)
+
 ## Submenu
 
 You can add submenu to the app like this:
@@ -74,6 +76,22 @@ public async Task Choice2()
     await Task.Delay(3000);
 }
 ```
+
+## Dynamic menu definition
+The library can let you configure a submenu based on the callback results:
+```cs
+[Choice("Dynamic Menu")]
+public void Choice3([Menu("Dynamic Menu", Description = "This is a generated menu from a callback")]  Menu menu)
+{
+    var random = new Random();
+    var choiceNumber = random.Next(9);
+    for (int i = 0; i < choiceNumber + 1; i++)
+    {
+        menu.AddMenuChoice($"Choice Id {Guid.NewGuid()}", () => Console.WriteLine("What a choice !"));
+    }
+}
+```
+
 ## Dependency Injection
 All the menu classes are resolved by dependency injection, so you can use it too! (see the sandbox project for a more detailed exemple)
 

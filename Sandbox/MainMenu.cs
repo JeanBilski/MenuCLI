@@ -20,7 +20,7 @@ namespace Sandbox
         [Choice("Choice 1")]
         public void Choice1()
         {
-            Console.WriteLine($"First Choice Action with a sync call { _injectionExemple.ExempleOfASyncCall() }");
+            Console.WriteLine($"First Choice Action with a sync call {_injectionExemple.ExempleOfASyncCall()}");
         }
 
         [Choice("Sub Menu", SubMenu = typeof(SubMenu))]
@@ -29,6 +29,18 @@ namespace Sandbox
             Console.WriteLine("Second Choice Action");
             Console.WriteLine("wait for the callback to finish...");
             await Task.Delay(3000);
+        }
+
+
+        [Choice("Dynamic Menu")]
+        public void Choice3([Menu("Dynamic Menu", Description = "This is a generated menu from a callback")]  Menu menu)
+        {
+            var random = new Random();
+            var choiceNumber = random.Next(9);
+            for (int i = 0; i < choiceNumber + 1; i++)
+            {
+                menu.AddMenuChoice($"Choice Id {Guid.NewGuid()}", () => Console.WriteLine("What a choice !"));
+            }
         }
     }
 }

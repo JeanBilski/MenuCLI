@@ -14,15 +14,20 @@ namespace MenuCLI
     {
         private static MenuSqueleton? _entrypointSqueleton;
 
-        public static IServiceCollection AddMenuCLI(this IServiceCollection services, Type entrypoint)
+        /// <summary>
+        /// Add and configure MenuCLI in the Dependency Injection.
+        /// </summary>
+        /// <typeparam name="T">Type of the entrypoint of the console app. This is your main menu.</typeparam>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">The entrypoint must be a non abstract class.</exception>
+        public static IServiceCollection AddMenuCLI<T>(this IServiceCollection services)
         {
-            if (entrypoint == null)
+            var entrypoint = typeof(T);
+
+            if (!entrypoint.IsClass || entrypoint.IsAbstract)
             {
-                throw new ArgumentNullException(nameof(entrypoint));
-            }
-            if (!entrypoint.IsClass)
-            {
-                throw new ArgumentException($"The entrypoint {entrypoint.Name} must be a class");
+                throw new ArgumentException($"The entrypoint {entrypoint.Name} must be a non abstract class");
             }
 
             _entrypointSqueleton = PrepareTheMenuSqueleton(entrypoint, services);
@@ -30,13 +35,19 @@ namespace MenuCLI
             return services;
         }
 
+        /// <summary>
+        /// Start MenuCLI. Execute it after the Dependency Injection configuration.
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException">Internal error</exception>
         public static async Task StartMenu(this IServiceProvider serviceProvider)
         {
             using IServiceScope serviceScope = serviceProvider.CreateScope();
             IServiceProvider provider = serviceScope.ServiceProvider;
             if (_entrypointSqueleton == null)
             {
-                throw new ArgumentNullException("The generation of the menu squeleton went wrong");
+                throw new ApplicationException("The generation of the menu squeleton went wrong");
             }
 
             var screen = GenerateScreen(_entrypointSqueleton, provider);
@@ -69,10 +80,10 @@ namespace MenuCLI
             return new MenuSqueleton(menu, menuAttributes.Title, menuAttributes.Description, choicesSqueleton);
         }
 
-        private static Screen GenerateScreen(MenuSqueleton menuSqueleton, IServiceProvider provider)
+        private static Menu GenerateScreen(MenuSqueleton menuSqueleton, IServiceProvider provider)
         {
             var menu = provider.GetRequiredService(menuSqueleton.Menu);
-            var screen = new Screen(menuSqueleton.Title, menuSqueleton.Description);
+            var screen = new Menu(menuSqueleton.Title, menuSqueleton.Description);
             foreach (var method in menuSqueleton.ChoiceSqueletons)
             {
                 if (method.SubMenu != null)
@@ -87,6 +98,26 @@ namespace MenuCLI
                         }, 
                         false);
                 }
+                else if (method.MethodInfo.GetParameters().Length == 1)
+                {
+                    var parameter = method.MethodInfo.GetParameters()[0];
+                    if (parameter.ParameterType == typeof(Menu) && parameter.GetCustomAttribute<MenuAttribute>() != null)
+                    {
+                        var menuAttribute = parameter.GetCustomAttribute<MenuAttribute>();
+                        Menu dynamicMenu = new Menu(menuAttribute?.Title ?? "Title", menuAttribute?.Description);
+
+                        screen.AddMenuChoice(method.Description, async () => 
+                        { 
+                            await ExecuteCallback(method.MethodInfo, menu, dynamicMenu);
+                            await dynamicMenu.Run();
+                            dynamicMenu.ClearMenuChoices();
+                        });
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"The method {method.MethodInfo.Name} can have at most one argument of type Menu and with a Menu attribute.");
+                    }
+                }
                 else
                 {
                     screen.AddMenuChoice(method.Description, async () => await ExecuteCallback(method.MethodInfo, menu));
@@ -96,19 +127,21 @@ namespace MenuCLI
             return screen;
         }
 
-        private static async Task ExecuteCallback(MethodInfo method, object? menu)
+        private static async Task ExecuteCallback(MethodInfo method, object? menu, Menu? dynamicMenu = null)
         {
+            var parameter = dynamicMenu != null ? new[] { dynamicMenu } : null;
+
             if (method.GetCustomAttribute<AsyncStateMachineAttribute>() != null)
             {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-                await (Task)method.Invoke(menu, null);
+                await (Task)method.Invoke(menu, parameter);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
             }
             else
             {
-                method.Invoke(menu, null);
+                method.Invoke(menu, parameter);
             }
         }
 
