@@ -92,6 +92,7 @@ public void Choice3([Menu("Dynamic Menu", Description = "This is a generated men
 }
 ```
 
+The dependency injection still works, but maybe not as expected. The callback method of the choice is executed in the same context as the register class. Look closely at the sandbox example for more precisions.
 ## Dependency Injection
 All the menu classes are resolved by dependency injection, so you can use it too! (see the sandbox project for a more detailed exemple)
 

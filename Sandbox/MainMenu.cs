@@ -33,13 +33,13 @@ namespace Sandbox
 
 
         [Choice("Dynamic Menu")]
-        public void Choice3([Menu("Dynamic Menu", Description = "This is a generated menu from a callback")]  Menu menu)
+        public void Choice3([Menu("Dynamic Menu", Description = "This is a generated menu from a callback")] Menu menu)
         {
             var random = new Random();
             var choiceNumber = random.Next(9);
             for (int i = 0; i < choiceNumber + 1; i++)
             {
-                menu.AddMenuChoice($"Choice Id {Guid.NewGuid()}", () => Console.WriteLine("What a choice !"));
+                menu.AddMenuChoice($"Choice Id {Guid.NewGuid()}", () => Console.WriteLine($"What a choice ! Number: {_injectionExemple.ExempleOfASyncCall()}"));
             }
         }
     }
